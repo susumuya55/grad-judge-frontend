@@ -233,116 +233,6 @@ function UnmetConditionsSummary({ receivedJson, program }) {
   );
 }
 
-function ConditionCard({ status, title, children }) {
-  return (
-    <div className={`condition-card ${status}`}>
-      <div className="condition-card-header">
-        <span className="condition-icon">
-          {status === "success" ? "✔" : "！"}
-        </span>
-        <span className="condition-title">{title}</span>
-      </div>
-
-      <div className="condition-card-body">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function NormalConditionCards({ normalConditions }) {
-  if (!normalConditions) return null;
-
-  const categoryLabels = {
-    humanities: "人文社会科目",
-    foreign_language: "外国語科目",
-    natural_science: "自然科学科目",
-    engineering_basic: "工学基礎科目",
-    group_common: "学群共通科目",
-    major: "専門科目"
-  };
-
-  const cards = [];
-
-  Object.entries(normalConditions).forEach(
-    ([categoryKey, categoryValue]) => {
-      const categoryLabel = categoryLabels[categoryKey];
-      if (!categoryLabel) return;
-
-      Object.entries(categoryValue).forEach(([type, data]) => {
-        const title = `${categoryLabel}（${type === "required" ? "必修" : "選択"}）`;
-
-        cards.push(
-          <ConditionCard
-            key={`${categoryKey}_${type}`}
-            status={data.satisfied ? "success" : "error"}
-            title={title}
-          >
-            <p>入力：{data.input} 単位</p>
-            <p>条件：{data.rule} 単位以上</p>
-            <p>判定：{data.satisfied ? "達成" : "未達成"}</p>
-          </ConditionCard>
-        );
-      });
-    }
-  );
-
-  return <>{cards}</>;
-}
-
-function SpecialConditionCards({ specialConditions, program }) {
-  if (!specialConditions) return null;
-
-  const cards = [];
-
-  // 基礎科学
-  const basicScience = specialConditions.basic_science;
-  if (basicScience) {
-    cards.push(
-      <ConditionCard
-        key="basic_science"
-        status={basicScience.result.satisfied ? "success" : "error"}
-        title="基礎科学科目"
-      >
-        <p>
-          修得済み科目：
-          {basicScience.completedSubjects.length > 0
-            ? basicScience.completedSubjects.join("、")
-            : "なし"}
-        </p>
-        <p>
-          判定：
-          {basicScience.result.satisfied ? "達成" : "未達成"}
-        </p>
-      </ConditionCard>
-    );
-  }
-
-  // 工学デザイン実習
-  const designPractice = specialConditions.engineering_design_practice;
-  if (program === "engineering_design" && designPractice) {
-    cards.push(
-      <ConditionCard
-        key="engineering_design_practice"
-        status={designPractice.result.satisfied ? "success" : "error"}
-        title="工学デザイン実習"
-      >
-        <p>
-          修得済み科目：
-          {designPractice.completedSubjects.length > 0
-            ? designPractice.completedSubjects.join("、")
-            : "なし"}
-        </p>
-        <p>
-          判定：
-          {designPractice.result.satisfied ? "達成" : "未達成"}
-        </p>
-      </ConditionCard>
-    );
-  }
-
-  return <>{cards}</>;
-}
 
 /* ========= App ========= */
 
@@ -531,12 +421,7 @@ export default function App() {
           <UnmetConditionsSummary receivedJson={receivedJson} program={program} />
           
           <h3>判定詳細</h3>
-          
-            <NormalConditionCards normalConditions={receivedJson?.details?.normalConditions}
-          />
-          
-          <SpecialConditionCards specialConditions={receivedJson?.details?.specialConditions} program={program}
-          />
+          <ResultDetailTable normalConditions={receivedJson?.details?.normalConditions} />
 
 
 
