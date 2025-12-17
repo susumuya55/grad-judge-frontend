@@ -420,6 +420,7 @@ export default function App() {
 
           <UnmetConditionsSummary receivedJson={receivedJson} program={program} />
           
+          <h3>判定詳細</h3>
           <ResultDetailTable normalConditions={receivedJson?.details?.normalConditions} />
 
 
