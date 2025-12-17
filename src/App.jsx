@@ -20,23 +20,20 @@ function QuestionInput({ label, value, isValid, onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <label style={{ display: "block", marginBottom: "0.25rem" }}>
+    <div className="question-row">
+      <label className="question-label">
         {label}
       </label>
       <input
         type="number"
         value={value ?? ""}
         onChange={handleChange}
-        style={{
-          padding: "0.25rem",
-          width: "200px",
-          border: isValid ? "1px solid #ccc" : "2px solid red"
-        }}
+        className={`question-input ${isValid ? "" : "invalid"}`}
       />
     </div>
   );
 }
+
 
 function MultiSelectQuestion({ prompt, options, value, onChange }) {
   const toggle = (id) => {
