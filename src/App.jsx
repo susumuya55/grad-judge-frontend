@@ -414,6 +414,9 @@ export default function App() {
       {result !== null && (
         <>
           <h2>{result ? "卒業できます" : "卒業できません"}</h2>
+          <p>
+            ※ 本判定は、令和6年度 学生便覧記載の卒業要件に基づいています。
+            </p>
 
           <UnmetConditionsSummary receivedJson={receivedJson} program={program} />
           
