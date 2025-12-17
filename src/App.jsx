@@ -235,7 +235,7 @@ export default function App() {
     setSentJson(requestBody);
 
     try {
-      const res = await fetch("https://grad-judge-backend.onrender.com", {
+      const res = await fetch("https://grad-judge-backend.onrender.com/judge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
