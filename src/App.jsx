@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./App.css";
 
 /* ========= 共通UI部品 ========= */
 
@@ -20,23 +21,20 @@ function QuestionInput({ label, value, isValid, onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <label style={{ display: "block", marginBottom: "0.25rem" }}>
+    <div className="question-row">
+      <label className="question-label">
         {label}
       </label>
       <input
         type="number"
         value={value ?? ""}
         onChange={handleChange}
-        style={{
-          padding: "0.25rem",
-          width: "200px",
-          border: isValid ? "1px solid #ccc" : "2px solid red"
-        }}
+        className={`question-input ${isValid ? "" : "invalid"}`}
       />
     </div>
   );
 }
+
 
 function MultiSelectQuestion({ prompt, options, value, onChange }) {
   const toggle = (id) => {
@@ -151,6 +149,87 @@ function ResultDetailTable({ normalConditions }) {
   );
 }
 
+function UnmetConditionsSummary({ receivedJson, program }) {
+  if (!receivedJson) return null;
+
+  const unmetItems = [];
+
+  const normalConditions = receivedJson.details?.normalConditions;
+
+  // ===== 通常条件（単位不足） =====
+  if (normalConditions) {
+    const categoryLabels = {
+      humanities: "人文社会科目",
+      foreign_language: "外国語科目",
+      natural_science: "自然科学科目",
+      engineering_basic: "工学基礎科目",
+      group_common: "学群共通科目",
+      major: "専門科目"
+    };
+
+    Object.entries(normalConditions).forEach(
+      ([categoryKey, categoryValue]) => {
+        const categoryLabel = categoryLabels[categoryKey];
+        if (!categoryLabel) return;
+
+        Object.entries(categoryValue).forEach(([type, data]) => {
+          if (data.diff < 0) {
+            unmetItems.push({
+              kind: "normal",
+              message: `${categoryLabel}（${type === "required" ? "必修" : "選択"}）が ${Math.abs(
+                data.diff
+              )} 単位不足しています`
+            });
+          }
+        });
+      }
+    );
+  }
+
+  // ===== 特殊条件：基礎科学 =====
+  const basicScience =
+    receivedJson.details?.specialConditions?.basic_science;
+
+  if (basicScience && basicScience.result?.satisfied === false) {
+    unmetItems.push({
+      kind: "special",
+      message:
+        "基礎科学科目が未達成です。化学Ⅰ・物理学Ⅰ・生物学Ⅰの中から 2 科目を修得する必要があります。"
+    });
+  }
+
+  // ===== 特殊条件：工学デザイン実習 =====
+  const designPractice =
+    receivedJson.details?.specialConditions?.engineering_design_practice;
+
+  if (
+    program === "engineering_design" &&
+    designPractice &&
+    designPractice.result?.satisfied === false
+  ) {
+    unmetItems.push({
+      kind: "special",
+      message:
+        "工学デザイン実習が未達成です。工学デザイン実習Ⅲ・Ⅳ・Ⅴに該当する科目をそれぞれ 1 科目ずつ修得する必要があります。"
+    });
+  }
+
+  return (
+    <div>
+      <h3>未達成条件</h3>
+
+      {unmetItems.length === 0 ? (
+        <p>不足なし</p>
+      ) : (
+        <ul>
+          {unmetItems.map((item, idx) => (
+            <li key={idx}>{item.message}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 
 /* ========= App ========= */
@@ -333,7 +412,13 @@ export default function App() {
       {result !== null && (
         <>
           <h2>{result ? "卒業できます" : "卒業できません"}</h2>
+          <p>
+            ※ 本判定は、令和6年度 学生便覧記載の卒業要件に基づいています。
+            </p>
+
+          <UnmetConditionsSummary receivedJson={receivedJson} program={program} />
           
+          <h3>判定詳細</h3>
           <ResultDetailTable normalConditions={receivedJson?.details?.normalConditions} />
 
 
