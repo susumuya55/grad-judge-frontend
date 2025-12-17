@@ -6,15 +6,29 @@
 }
 
 .question-label {
-  min-width: 220px;
+  min-width: 240px;     /* ← 少し広げる */
+  font-size: 0.95rem;
+  color: #333;
 }
 
 .question-input {
-  width: 200px;
-  padding: 0.25rem;
+  width: 180px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.95rem;
+
   border: 1px solid #ccc;
+  border-radius: 6px;
+
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .question-input.invalid {
-  border: 2px solid red;
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.question-input:focus {
+  outline: none;
+  border-color: #3b82f6;          /* 青系 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
